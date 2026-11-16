@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'SleepGoal.dart';
 import 'SoundEvent.dart';
 
@@ -11,22 +9,34 @@ class Sleepsession {
   int? _perceivedQuality;
   final bool _recordSound;
 
-  Sleepsession(this._start, this._goal, this._recordSound, {this._end});
+  Sleepsession(this._start, this._goal, this._recordSound);
 
-  Duration get duration => endTimeHelper(_end?.difference(_start));
-
+  Duration get duration {
+    _checkFinished();
+    return _end!.difference(_start);
+  }
+  int? get perceivedQuality => _perceivedQuality ;
+  bool get recordSound => _recordSound ;
+  SleepGoal get goal => _goal ;
   DateTime get startTime => _start;
-  DateTime get endTime => endTimeHelper(_end);
+  DateTime get endTime {
+    _checkFinished();
+    return _end! ;
+  }
   DateTime get plannedWakeTime {
-      final midnight = DateTime(_start.year, _start.month, _start.day);
-      final wake = midnight.
+    final nightTime = DateTime(_start.year, _start.month, _start.day);
+    DateTime wake = nightTime.add(_goal.waketime);
 
-  };
+    if (wake.isBefore(_start)) {
+      wake = wake.add(const Duration(days: 1));
+    }
+    return wake;
+  }
+
+  DateTime get plannedBedTime => plannedWakeTime.subtract(_goal.targetGoal);
   List<Soundevent> get events => List.unmodifiable(_events);
 
-  bool isRecording() {
-    return _end == null ? true : false;
-  }
+  bool isRecording() => _end == null ;
 
   void finish(DateTime at) {
     if (!isRecording()) {
@@ -44,8 +54,8 @@ class Sleepsession {
     }
     _events.add(e);
   }
-
-  int? rateQuality(int q) {
+ 
+  void rateQuality(int q) {
     if (q < 1 || q > 5) {
       throw Exception("The rating quality and must be between 1-5");
     }
@@ -57,7 +67,8 @@ class Sleepsession {
   }
 
   Duration waketimeGap() {
-    return endTimeHelper(_end?.difference(plannedWakeTime));
+    _checkFinished();
+    return _end!.difference(plannedWakeTime);
   }
 
   int rating() {
@@ -68,17 +79,13 @@ class Sleepsession {
 
   Duration nightDebt() {
     return _goal.targetGoal.inMinutes > duration.inMinutes
-      ? Duration.zero
-      : _goal.targetGoal - duration;
+        ? _goal.targetGoal - duration
+        : Duration.zero;
   }
 
-  dynamic endTimeHelper(dynamic returnVal) {
+  void _checkFinished() {
     if (_end == null) {
-      throw Exception(
-        "Cannot get the end time since the recording is still on ",
-      );
-    } else {
-      return returnVal;
+      throw Exception('Session is still running');
     }
   }
 }

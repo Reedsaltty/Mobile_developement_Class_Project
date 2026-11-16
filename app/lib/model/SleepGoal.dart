@@ -1,18 +1,22 @@
 class SleepGoal {
-  final Duration _TargetGoal;
+  final Duration _targetGoal;
   final Duration _wakeTime;
 
-  SleepGoal({required this._TargetGoal, required this._wakeTime});
+  SleepGoal({required this._targetGoal, required this._wakeTime});
 
   bool isValid() {
-    return (_TargetGoal.inMinutes >= 240 &&
-        _TargetGoal.inMinutes <= 720 &&
-        _TargetGoal.inMinutes % 15 == 0);
+    return (_targetGoal.inMinutes >= 240 &&
+        _targetGoal.inMinutes <= 720 &&
+        _targetGoal.inMinutes % 15 == 0);
   }
 
-  Duration get bedtime => (_wakeTime - _TargetGoal);
+  Duration get bedtime {
+     final minutes = _wakeTime.inMinutes - _targetGoal.inMinutes;
+        final wrapped = minutes % 1440;
+        return Duration(minutes: wrapped);
+  }
   Duration get waketime => _wakeTime;
-  Duration get targetGoal => _TargetGoal;
+  Duration get targetGoal => _targetGoal;
 }
 
 ///

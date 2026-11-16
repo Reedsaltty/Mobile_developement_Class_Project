@@ -1,6 +1,5 @@
-import 'package:flutter/foundation.dart';
-
-enum SoundType { Snoring, Talking, Cought, Noise }
+// ignore: file_names
+enum SoundType { snoring, talking, cough, noise }
 
 class Soundevent {
   final SoundType _type;
@@ -16,6 +15,13 @@ class Soundevent {
       throw Exception("Confident shall be in the range of 0-1");
     }
   }
+
+  SoundType get type => _type;
+  Duration get duration => _duration;
+  DateTime get timeStamp => _timeStamp;
+  double get confident => _confident;
+
+  
 }
 
 ///
